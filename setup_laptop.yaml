@@ -1,0 +1,96 @@
+- hosts: cool
+  tasks:
+    - name: Install packages
+      become: yes
+      apt:
+        name:
+          - vim
+          - tmux
+          - git
+          - zsh
+          - python3
+          - python3-pip
+          - aptitude
+          - fonts-powerline
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install OhMyZ.sh
+      shell: >
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Learn who the hell I am
+      command: whoami
+      become: false
+      register: whoami
+      changed_when: false
+
+    - name: Update shell
+      user:
+        name: "{{ whoami.stdout }}"
+        shell: /bin/zsh
+
+    - name: nvm
+      shell: >
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash
+      args:
+        creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+
+    - name: Zsh setup nvm path
+      blockinfile:
+        path: ~/.zshrc
+        block: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+    - name: Add Docker GPG apt key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      
+    - name: Add docker registry
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Update apt-cache and install docker & docker-compose
+      apt:
+        update_cache: yes
+        name:
+          - docker-ce
+          - docker-compose
+        state: latest
+
+    - name: Install vscode, pycharm, webstorm, and other dev tools
+      snap:
+        name:
+          - code
+          - pycharm-professional
+          - webstorm
+          - goland
+          - datagrip
+          - kubectl
+          - postman
+          - obs-studio
+          - slack
+          - chromium
+          - firefox
+          - bitwarden
+          - google-cloud-sdk
+          - doctl
+          - discord
+          - redis-desktop-manager
+          - spotify
+          - terraform
+          - helm
+          - go
+        classic: yes
+
+    - name: Ensure snap path is set
+      lineinfile:
+        path: ~/.zshrc
+        line: export PATH=$PATH:/snap/bin
