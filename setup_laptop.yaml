@@ -1,4 +1,4 @@
-- hosts: laptop
+- hosts: localhost
   connection: local 
   tasks:
     - name: Install packages
@@ -30,6 +30,7 @@
       changed_when: false
 
     - name: Update shell
+      become: yes
       user:
         name: "{{ whoami.stdout }}"
         shell: /bin/zsh
@@ -49,16 +50,19 @@
           [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
     - name: Add Docker GPG apt key
+      become: yes
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
       
     - name: Add docker registry
+      become: yes
       apt_repository:
         repo: deb https://download.docker.com/linux/ubuntu bionic stable
         state: present
 
     - name: Update apt-cache and install docker & docker-compose
+      become: yes
       apt:
         update_cache: yes
         name:
@@ -67,6 +71,7 @@
         state: latest
 
     - name: Install vscode, pycharm, webstorm, and other dev tools
+      become: yes
       snap:
         name:
           - code
