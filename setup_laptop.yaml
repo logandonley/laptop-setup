@@ -1,4 +1,5 @@
 - hosts: laptop
+  connection: local 
   tasks:
     - name: Install packages
       become: yes
