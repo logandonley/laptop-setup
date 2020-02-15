@@ -1,4 +1,4 @@
-- hosts: cool
+- hosts: laptop
   tasks:
     - name: Install packages
       become: yes
